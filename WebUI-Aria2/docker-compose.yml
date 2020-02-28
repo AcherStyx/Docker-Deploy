@@ -15,7 +15,7 @@ services:
       - webui-aria2
 
     volumes:
-      # set the download direc
+      # set the download directory
       - /data/Downloads:/data
 
 networks:
