@@ -7,15 +7,27 @@ services:
     restart: always
     
     environment:
-      POSTGRES_USER: root
+      POSTGRES_USER: 
       POSTGRES_PASSWORD: 123456
 
     volumes:
-      - /data/PostgreSQL:/var/lib/postgresql/data
+      - /data/PostgreSQL/db:/var/lib/postgresql/data
 
-  adminer:
-    image: adminer
-    container_name: postgres_adminer
+  pgadmin:
+    build:
+      context: .  
+      dockerfile: Dockerfile
+    container_name: postgres_pgadmin
     restart: always
-    ports:
-      - 8080:8080
+
+    environment: 
+      PGADMIN_DEFAULT_EMAIL: user@domain.com
+      PGADMIN_DEFAULT_PASSWORD: 123456
+      PGADMIN_LISTEN_ADDRESS: 
+    
+    ports: 
+      - 8080:80
+    
+    volumes:
+      - /data/PostgreSQL/pgamin:/var/lib/pgadmin
+    
