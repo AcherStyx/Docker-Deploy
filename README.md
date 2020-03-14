@@ -12,6 +12,10 @@
 
     Postgre数据库，主要用于数据库的动手练习。  
 
+- ### [OpenDayLight](https://github.com/AcherStyx/Docker-Deploy/tree/master/OpenDayLight)
+
+    用于在`Docker`中部署运行OpenDayLight SDN控制器，默认使用`0.8.4`版本。  
+
 ## 一些说明
 
 ### 关于运行
@@ -27,6 +31,6 @@
 由于没有对目录的权限进行配置，在使用额外的挂载目录的时候，务必保证对目录有读写权限，比如`\data`目录下的读写权限，这是大部分脚本的默认外挂储存目录。  
 发生这种情况的时候，使用`docker logs app-name`通常会看到`Permission denied`错误提示。  
 
-### 文件安排
+### 默认位置
 
 - `\data`：数据文件主要的挂载位置，用于数据的持久化。再进一步的文件夹划分类似于`\data\app-name\`。  
