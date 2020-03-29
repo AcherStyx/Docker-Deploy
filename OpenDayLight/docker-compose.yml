@@ -8,13 +8,10 @@ services:
     container_name: odl_controller
     restart: always
 
-    ports:
+    ports: 
       - 8181:8181
       - 6653:6653
       - 6633:6633
-
-    # volumes:
-    #   - /path/to/karaf-0.8.4:/home/karaf-0.8.4
 
     tty: true
     stdin_open: true
