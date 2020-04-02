@@ -13,5 +13,29 @@ services:
       - 6653:6653
       - 6633:6633
 
+    networks: 
+      odl_network:
+        ipv4_address: 10.0.0.10
+
     tty: true
     stdin_open: true
+
+  sf1:
+    build:
+      context: sfc demo/sf
+      dockerfile: Dockerfile
+    container_name: odl_sf1
+    restart: always
+
+    ports:
+     - 5000:5000
+    
+    networks: 
+      odl_network:
+        ipv4_address: 10.0.0.11
+
+networks: 
+  odl_network:
+    ipam:
+      config:
+      - subnet: 10.0.0.0/24
