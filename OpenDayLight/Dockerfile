@@ -23,7 +23,8 @@ RUN start \
     odl-mdsal-broker odl-mdsal-clustering-commons odl-mdsal-distributed-datastore \
     odl-mdsal-remoterpc-connector odl-mdsal-broker-local odl-restconf \
     odl-restconf-noauth odl-sfc-model odl-sfc-provider odl-sfc-provider-rest \
-    odl-sfc-ovs odl-sfc-ui odl-sfc-sb-rest odl-sfc-openflow-renderer"
+    odl-sfc-ovs odl-sfc-ui odl-sfc-sb-rest odl-sfc-openflow-renderer \
+    odl-sfc-scf-openflow"
 
 # install l2switch
 RUN start \

@@ -59,6 +59,22 @@ client -r 20 "feature:instal [feature1] [feature2] ..."
 
 > :pill: 如果不需要这一部分直接在`docker-compose.yml`注释掉相关镜像即可。  
 
+这一部分的文件结构如下：
+
+```
+.
+`-- sfc\ demo
+    |-- sf
+    |   |-- Dockerfile
+    |   `-- source 
+    |       |-- download.sh
+    |       `-- ... *
+    `-- sff
+        `-- Dockerfile
+```
+
+其中缺少的可执行文件通过`download.sh`下载。  
+
 ### 地址分配
 
 在`docker-compose.yml`中为这一组镜像创建了指定的网络，并进行了IP地址的固定分配，各个部分的IP地址如下：  
@@ -67,8 +83,5 @@ client -r 20 "feature:instal [feature1] [feature2] ..."
 |---|---|
 | OpenDayLight | 10.0.0.10 |
 | SF1 | 10.0.0.11 |
-
-
-
 
 [^from-shell-command]: [scripting - Script Karaf shell commands? - Stack Overflow](https://stackoverflow.com/questions/26434360/script-karaf-shell-commands)
