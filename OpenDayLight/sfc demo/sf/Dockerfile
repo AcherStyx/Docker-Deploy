@@ -16,5 +16,4 @@ WORKDIR /home/sfc
 
 COPY --chown=777 source ./
 
-
 ENTRYPOINT [ "python3", "sfc_agent.py", "--rest", "--odl-ip-port", "10.0.0.10:8181", "--auto-sff-name"]

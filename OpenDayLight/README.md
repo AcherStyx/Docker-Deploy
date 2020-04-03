@@ -5,11 +5,16 @@
 
 <!-- code_chunk_output -->
 
-- [运行OpenDayLight](#运行opendaylight)
-  - [运行效果](#运行效果)
-  - [向karaf会话传递指令](#向karaf会话传递指令)
-- [配置SFC demo](#配置sfc-demo)
-  - [地址分配](#地址分配)
+- [OpenDayLight](#opendaylight)
+  - [运行OpenDayLight](#%e8%bf%90%e8%a1%8copendaylight)
+    - [运行效果](#%e8%bf%90%e8%a1%8c%e6%95%88%e6%9e%9c)
+    - [向karaf会话传递指令](#%e5%90%91karaf%e4%bc%9a%e8%af%9d%e4%bc%a0%e9%80%92%e6%8c%87%e4%bb%a4)
+  - [配置SFC demo](#%e9%85%8d%e7%bd%aesfc-demo)
+    - [地址分配](#%e5%9c%b0%e5%9d%80%e5%88%86%e9%85%8d)
+    - [ODL中添加demo](#odl%e4%b8%ad%e6%b7%bb%e5%8a%a0demo)
+      - [1. 添加Service Function](#1-%e6%b7%bb%e5%8a%a0service-function)
+      - [2. 添加Service Nodes](#2-%e6%b7%bb%e5%8a%a0service-nodes)
+      - [3. 添加SFF](#3-%e6%b7%bb%e5%8a%a0sff)
 
 <!-- /code_chunk_output -->
 
@@ -32,7 +37,7 @@
 
 以上带“*”的文件需要自行下载后放在对应位置，所有文件均就绪之后运行`docker-compose up --build`即可自动部署。  
 
->  :pill: 使用`download.sh`会自动下载，但是可能下载会很慢，如有需要建议使用其他下载器手动下载。  
+> :pill: 使用`download.sh`会自动下载，但是可能下载会很慢，如有需要建议使用其他下载器手动下载。  
 
 ### 运行效果
 
@@ -79,9 +84,37 @@ client -r 20 "feature:instal [feature1] [feature2] ..."
 
 在`docker-compose.yml`中为这一组镜像创建了指定的网络，并进行了IP地址的固定分配，各个部分的IP地址如下：  
 
-| App | IPv4 Address |
-|---|---|
-| OpenDayLight | 10.0.0.10 |
-| SF1 | 10.0.0.11 |
+| App          | IPv4 Address |
+| ------------ | ------------ |
+| OpenDayLight | 10.0.0.10    |
+| SF1          | 10.0.0.11    |
+
+### ODL中添加demo
+
+#### 1. 添加Service Function
+
+在`SFC => Service Functions`下选择`Add Service Function`，按如下形式填写信息：
+
+![add-service-function](_images/add-service-function.png)  
+
+#### 2. 添加Service Nodes
+
+在`SFC => Service Nodes`下添加节点：
+
+![add-service-nodes](_images/add-service-nodes.png)
+
+此时`Service Nodes`一栏可能没有变化。
+
+#### 3. 添加SFF
+
+![add-service-function-forwarder](_images/add-service-function-forwarder.png)
+
+另外`SFF dictionary`一栏需要删除掉。
+
+完成后，在`Service Nodes`中将会看到对应的拓扑结构：
+
+![nodes-after-setting](_images/nodes-after-setting.png)
+
+<!--footnotes-->
 
 [^from-shell-command]: [scripting - Script Karaf shell commands? - Stack Overflow](https://stackoverflow.com/questions/26434360/script-karaf-shell-commands)
