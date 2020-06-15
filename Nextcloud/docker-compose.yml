@@ -1,0 +1,68 @@
+version: "2.3"
+
+services:
+  db:
+    image: mariadb
+    container_name: nextcloud_db
+    hostname: mariadb
+    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
+    restart: always
+    privileged: true
+    volumes:
+      - /data/nextcloud/db:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=  # <!> set sql root passqord
+      - MYSQL_PASSWORD=       # <!> set nextcloud db password
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+    networks:
+      - nextcloud_net
+
+  nextcloud:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: nextcloud_main
+    hostname: nextcloud
+    depends_on:
+      - db
+    privileged: true
+    environment:
+      # redis
+      - REDIS_HOST=redis
+      - REDIS_HOST_PORT=6379
+      # mysql
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+      - MYSQL_PASSWORD=   # <!> fill the same password for nextcloud db
+      - MYSQL_HOST=db
+      # admin account
+      - NEXTCLOUD_ADMIN_USER=Nextcloud
+      - NEXTCLOUD_ADMIN_PASSWORD=   # <!> set admin password
+      # trusted domains
+      - NEXTCLOUD_TRUSTED_DOMAINS=*.*.*.*
+    expose: 
+      - 8888
+    ports:
+      - 8888:80/tcp
+    links:
+      - db
+      - redis
+    volumes:
+      - /data/nextcloud/data:/var/www/html
+    restart: always
+    networks:
+      - nextcloud_net
+
+  redis:
+    image: redis:alpine
+    container_name: nextcloud_redis
+    hostname: redis
+    expose: 
+      - 6379
+    networks: 
+      - nextcloud_net
+    restart: always
+
+networks:
+  nextcloud_net:
