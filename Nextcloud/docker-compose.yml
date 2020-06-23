@@ -60,14 +60,52 @@ services:
     build: nginx
     container_name: nextcloud_nginx
     restart: always
-    ports: 
-      - 80:80/tcp
+    expose: 
+      - 80
     volumes: 
       - nextcloud:/var/www/html:ro
     depends_on: 
       - nextcloud
     networks:
+      - nextcloud_proxy
       - nextcloud_net
+    links:
+      - nextcloud
+    environment:
+      - VIRTUAL_HOST=0.0.0.0
+      - VIRTUAL_PORT=443
+
+  proxy:
+    build: proxy
+    restart: always
+    container_name: nextcloud_proxy
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - certs:/etc/nginx/certs:ro
+      - vhost.d:/etc/nginx/vhost.d
+      - html:/usr/share/nginx/html
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+    networks:
+      - nextcloud_proxy
+    depends_on:
+      - omgwtfssl
+    
+
+  omgwtfssl:
+    image: paulczar/omgwtfssl
+    container_name: nextcloud_omgwtfssl
+    restart: "no"
+    volumes:
+      - certs:/certs
+    environment:
+      - SSL_SUBJECT=0.0.0.0
+      - SSL_KEY=/certs/0.0.0.0.key
+      - SSL_CSR=/certs/0.0.0.0.csr
+      - SSL_CERT=/certs/0.0.0.0.crt
+    networks:
+      - nextcloud_proxy
 
   redis:
     image: redis
@@ -94,7 +132,12 @@ services:
 
 networks:
   nextcloud_net:
+  nextcloud_proxy:
 
 volumes:
   db:
   nextcloud:
+  certs:
+  vhost.d:
+  html:
+  
