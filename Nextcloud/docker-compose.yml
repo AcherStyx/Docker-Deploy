@@ -1,4 +1,4 @@
-version: "2.3"
+version: "3"
 
 services:
   db:
@@ -9,60 +9,92 @@ services:
     restart: always
     privileged: true
     volumes:
-      - /data/nextcloud/db:/var/lib/mysql
+      - db:/var/lib/mysql
     environment:
-      - MYSQL_ROOT_PASSWORD=  # <!> set sql root passqord
-      - MYSQL_PASSWORD=       # <!> set nextcloud db password
-      - MYSQL_DATABASE=nextcloud
-      - MYSQL_USER=nextcloud
+      - MYSQL_ROOT_PASSWORD= # <!!!> set sql root passqord
+    env_file: 
+      - db.env
     networks:
       - nextcloud_net
 
   nextcloud:
-    build: 
-      context: .
-      dockerfile: Dockerfile
+    image: nextcloud:fpm
     container_name: nextcloud_main
+    restart: always
     hostname: nextcloud
     depends_on:
       - db
+      - redis
     privileged: true
     environment:
       # redis
       - REDIS_HOST=redis
       - REDIS_HOST_PORT=6379
       # mysql
-      - MYSQL_DATABASE=nextcloud
-      - MYSQL_USER=nextcloud
-      - MYSQL_PASSWORD=   # <!> fill the same password for nextcloud db
       - MYSQL_HOST=db
-      # admin account
-      - NEXTCLOUD_ADMIN_USER=Nextcloud
-      - NEXTCLOUD_ADMIN_PASSWORD=   # <!> set admin password
-      # trusted domains
-      - NEXTCLOUD_TRUSTED_DOMAINS=*.*.*.*
-    expose: 
-      - 8888
-    ports:
-      - 8888:80/tcp
+      # admin account 
+      - NEXTCLOUD_ADMIN_USER= # <!> set admin username
+      - NEXTCLOUD_ADMIN_PASSWORD= # <!> set admin password
+      # trusted domains (optional)
+      - NEXTCLOUD_TRUSTED_DOMAINS=
+      # SMTP (optional)
+      - SMTP_HOST=
+      - SMTP_SECURE=
+      - SMTP_PORT=
+      - SMTP_AUTHTYPE=
+      - SMTP_NAME=
+      - SMTP_PASSWORD=
+      - MAIL_FROM_ADDRESS=
+      - MAIL_DOMAIN=
+    env_file: 
+      - db.env
     links:
       - db
       - redis
     volumes:
-      - /data/nextcloud/data:/var/www/html
+      - nextcloud:/var/www/html
+    networks:
+      - nextcloud_net
+
+  nginx:
+    build: nginx
+    container_name: nextcloud_nginx
     restart: always
+    ports: 
+      - 80:80/tcp
+    volumes: 
+      - nextcloud:/var/www/html:ro
+    depends_on: 
+      - nextcloud
     networks:
       - nextcloud_net
 
   redis:
-    image: redis:alpine
+    image: redis
     container_name: nextcloud_redis
-    hostname: redis
-    expose: 
-      - 6379
-    networks: 
-      - nextcloud_net
     restart: always
+    hostname: redis
+    expose:
+      - 6379
+    networks:
+      - nextcloud_net
+
+  cron:
+    image: nextcloud:fpm
+    container_name: nextcloud_cron
+    restart: always
+    volumes:
+      - nextcloud:/var/www/html
+    entrypoint: /cron.sh
+    depends_on:
+      - db
+      - redis
+    networks:
+      - nextcloud_net
 
 networks:
   nextcloud_net:
+
+volumes:
+  db:
+  nextcloud:
