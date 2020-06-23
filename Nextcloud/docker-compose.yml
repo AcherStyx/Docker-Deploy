@@ -1,0 +1,143 @@
+version: "3"
+
+services:
+  db:
+    image: mariadb
+    container_name: nextcloud_db
+    hostname: mariadb
+    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
+    restart: always
+    privileged: true
+    volumes:
+      - db:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD= # <!!!> set sql root passqord
+    env_file: 
+      - db.env
+    networks:
+      - nextcloud_net
+
+  nextcloud:
+    image: nextcloud:fpm
+    container_name: nextcloud_main
+    restart: always
+    hostname: nextcloud
+    depends_on:
+      - db
+      - redis
+    privileged: true
+    environment:
+      # redis
+      - REDIS_HOST=redis
+      - REDIS_HOST_PORT=6379
+      # mysql
+      - MYSQL_HOST=db
+      # admin account 
+      - NEXTCLOUD_ADMIN_USER= # <!> set admin username
+      - NEXTCLOUD_ADMIN_PASSWORD= # <!> set admin password
+      # trusted domains (optional)
+      - NEXTCLOUD_TRUSTED_DOMAINS=
+      # SMTP (optional)
+      - SMTP_HOST=
+      - SMTP_SECURE=
+      - SMTP_PORT=
+      - SMTP_AUTHTYPE=
+      - SMTP_NAME=
+      - SMTP_PASSWORD=
+      - MAIL_FROM_ADDRESS=
+      - MAIL_DOMAIN=
+    env_file: 
+      - db.env
+    links:
+      - db
+      - redis
+    volumes:
+      - nextcloud:/var/www/html
+    networks:
+      - nextcloud_net
+
+  nginx:
+    build: nginx
+    container_name: nextcloud_nginx
+    restart: always
+    expose: 
+      - 80
+    volumes: 
+      - nextcloud:/var/www/html:ro
+    depends_on: 
+      - nextcloud
+    networks:
+      - nextcloud_proxy
+      - nextcloud_net
+    links:
+      - nextcloud
+    environment:
+      - VIRTUAL_HOST=0.0.0.0
+      - VIRTUAL_PORT=443
+
+  proxy:
+    build: proxy
+    restart: always
+    container_name: nextcloud_proxy
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - certs:/etc/nginx/certs:ro
+      - vhost.d:/etc/nginx/vhost.d
+      - html:/usr/share/nginx/html
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+    networks:
+      - nextcloud_proxy
+    depends_on:
+      - omgwtfssl
+    
+
+  omgwtfssl:
+    image: paulczar/omgwtfssl
+    container_name: nextcloud_omgwtfssl
+    restart: "no"
+    volumes:
+      - certs:/certs
+    environment:
+      - SSL_SUBJECT=0.0.0.0
+      - SSL_KEY=/certs/0.0.0.0.key
+      - SSL_CSR=/certs/0.0.0.0.csr
+      - SSL_CERT=/certs/0.0.0.0.crt
+    networks:
+      - nextcloud_proxy
+
+  redis:
+    image: redis
+    container_name: nextcloud_redis
+    restart: always
+    hostname: redis
+    expose:
+      - 6379
+    networks:
+      - nextcloud_net
+
+  cron:
+    image: nextcloud:fpm
+    container_name: nextcloud_cron
+    restart: always
+    volumes:
+      - nextcloud:/var/www/html
+    entrypoint: /cron.sh
+    depends_on:
+      - db
+      - redis
+    networks:
+      - nextcloud_net
+
+networks:
+  nextcloud_net:
+  nextcloud_proxy:
+
+volumes:
+  db:
+  nextcloud:
+  certs:
+  vhost.d:
+  html:
+  
