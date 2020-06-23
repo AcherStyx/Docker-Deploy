@@ -73,7 +73,7 @@ services:
       - nextcloud
     environment:
       - VIRTUAL_HOST=0.0.0.0
-      - VIRTUAL_PORT=443
+      - VIRTUAL_PORT=https
 
   proxy:
     build: proxy
