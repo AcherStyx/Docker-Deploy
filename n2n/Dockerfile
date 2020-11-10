@@ -2,7 +2,9 @@ FROM centos:8
 
 RUN yum install git make -y
 
-RUN git clone https://github.com/ntop/n2n /n2n
+RUN git clone https://github.com/ntop/n2n -b 2.8-stable /n2n && \
+    cd /n2n
+
 WORKDIR /n2n
 
 RUN yum install autoconf automake libtool -y 
@@ -12,6 +14,7 @@ RUN ./autogen.sh && \
     make && \
     make install
 
-RUN whereis supernode
+EXPOSE 5000
+EXPOSE 5001
 
-ENTRYPOINT [ "/usr/sbin/supernode", "-l=1234" ]
+ENTRYPOINT [ "supernode","-v","-l","5000","-t", "5001","-v"]
