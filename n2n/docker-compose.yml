@@ -1,0 +1,8 @@
+version: "3"
+
+services: 
+    supernode:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        
